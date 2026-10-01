@@ -42,6 +42,18 @@ dependencies:
   flutter_riverpod: ^3.4.3
   dio: ^5.11.1
 
+  # PL/EN translations (see lib/i18n/) - same versions as ../smpda so
+  # `dart run slang`'s generated code matches; not really a *new*
+  # dependency in practice, shadcn_ui already pulls these two in
+  # transitively for its own component text.
+  slang: 4.19.2
+  slang_flutter: 4.19.0
+
+  # Persists the chosen language (and, later, anything else worth
+  # remembering across restarts) - same package ../smpda uses for its own
+  # settings.
+  shared_preferences: ^2.5.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -52,6 +64,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  build_runner: ^2.16.1
+  slang_build_runner: ^4.19.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

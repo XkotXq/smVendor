@@ -45,11 +45,21 @@ class AuthApi {
 
   /// Throws an [AuthFailure] - LoginScreen shows its `code` in Polish
   /// rather than the server's own text.
-  Future<AuthSession> login(String username, String password) async {
+  ///
+  /// [deviceLabel]: this device's own "Wózek N" setting (see
+  /// core/session/device_label_providers.dart, set once per device on
+  /// AccountPage) - wpsApi logs a login_events row for wps's "Historia
+  /// logowania" whenever it's non-blank (see its own routes/auth.js), and
+  /// skips logging entirely for a device that was never labeled.
+  Future<AuthSession> login(String username, String password, {String? deviceLabel}) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/auth/login',
-        data: {'username': username, 'password': password},
+        data: {
+          'username': username,
+          'password': password,
+          if (deviceLabel != null && deviceLabel.isNotEmpty) 'deviceLabel': deviceLabel,
+        },
       );
       final data = res.data!;
       return AuthSession(

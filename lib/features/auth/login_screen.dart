@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 import '../../core/api/auth_api.dart';
+import '../../core/session/device_label_providers.dart';
 import '../../core/session/session_providers.dart';
+import '../../i18n/gen/strings.g.dart';
 import '../../widgets/app_shell.dart';
 
 /// First screen the app shows. Same CIP login wps/smpda already use, proxied
@@ -48,7 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
     if (username.isEmpty || password.isEmpty || _submitting) {
-      if (username.isEmpty || password.isEmpty) setState(() => _error = 'Wpisz login i hasło.');
+      if (username.isEmpty || password.isEmpty) setState(() => _error = context.t.login.missingFields);
       return;
     }
 
@@ -57,7 +59,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _error = null;
     });
     try {
-      final session = await ref.read(authApiProvider).login(username, password);
+      final deviceLabel = ref.read(deviceLabelProvider).value;
+      final session = await ref.read(authApiProvider).login(username, password, deviceLabel: deviceLabel);
       if (!mounted) return;
       ref.read(sessionProvider.notifier).setSession(session);
       Navigator.of(context).pushReplacement(
@@ -75,21 +78,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   /// never shown. No code (server unreachable) or one this app doesn't know
   /// -> a generic "can't reach the server" / the server's own text.
   String _messageFor(Object error) {
+    final errors = context.t.login.errors;
     if (error is AuthFailure) {
       return switch (error.code) {
-        'invalid_credentials' => 'Nieprawidłowy login lub hasło.',
-        'cip_unreachable' => 'Nie udało się połączyć z CIP.',
-        'too_many_attempts' => 'Zbyt wiele prób logowania - spróbuj ponownie za chwilę.',
-        null => 'Nie udało się połączyć z serwerem.',
+        'invalid_credentials' => errors.invalidCredentials,
+        'cip_unreachable' => errors.cipUnreachable,
+        'too_many_attempts' => errors.tooManyAttempts,
+        null => errors.serverUnreachable,
         _ => error.message,
       };
     }
-    return 'Nie udało się połączyć z serwerem.';
+    return errors.serverUnreachable;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
+    final t = context.t.login;
     final fieldStyle = theme.textTheme.p.copyWith(fontSize: 18);
 
     Widget bigField({
@@ -159,10 +164,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Text('Zaloguj się', style: theme.textTheme.h2, textAlign: TextAlign.center),
+                  Text(t.title, style: theme.textTheme.h2, textAlign: TextAlign.center),
                   const SizedBox(height: 6),
                   Text(
-                    'smVendor - panel logowania',
+                    t.subtitle,
                     style: theme.textTheme.muted,
                     textAlign: TextAlign.center,
                   ),
@@ -178,14 +183,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         bigField(
-                          label: 'Login',
+                          label: t.usernameLabel,
                           controller: _usernameController,
                           focusNode: _usernameFocus,
                           nextFocus: _passwordFocus,
                         ),
                         const SizedBox(height: 20),
                         bigField(
-                          label: 'Hasło',
+                          label: t.passwordLabel,
                           controller: _passwordController,
                           focusNode: _passwordFocus,
                           nextFocus: null,
@@ -228,7 +233,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: ShadButton(
                             onPressed: _submitting ? null : _submit,
                             child: Text(
-                              _submitting ? 'Logowanie...' : 'Zaloguj się',
+                              _submitting ? t.submitting : t.submit,
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                             ),
                           ),

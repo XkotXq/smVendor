@@ -7,13 +7,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
+import 'package:smvendor/i18n/gen/strings.g.dart';
 import 'package:smvendor/main.dart';
 import 'package:smvendor/theme/app_theme.dart';
 import 'package:smvendor/widgets/app_shell.dart';
 
 void main() {
   testWidgets('App boots to the login screen', (WidgetTester tester) async {
-    await tester.pumpWidget(const SmVendorApp());
+    // Both ProviderScope (SmVendorApp/LoginScreen read riverpod state) and
+    // TranslationProvider (they now read context.t - see
+    // core/session/locale_providers.dart, i18n/) are needed here the same
+    // way main.dart wires them for the real app.
+    await tester.pumpWidget(TranslationProvider(child: const ProviderScope(child: SmVendorApp())));
     await tester.pumpAndSettle();
 
     // Both the title and the submit button say "Zaloguj się" (same as
@@ -32,7 +37,9 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      ProviderScope(child: ShadApp(theme: AppTheme.light, home: const AppShell())),
+      TranslationProvider(
+        child: ProviderScope(child: ShadApp(theme: AppTheme.light, home: const AppShell())),
+      ),
     );
     await tester.pumpAndSettle();
   }

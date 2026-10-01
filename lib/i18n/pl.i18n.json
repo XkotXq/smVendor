@@ -1,0 +1,108 @@
+{
+  "nav": {
+    "orders": "Zamówienia",
+    "account": "Konto",
+    "collapse": "Zwiń nawigację",
+    "expand": "Rozwiń nawigację",
+    "history": "Historia"
+  },
+  "login": {
+    "title": "Zaloguj się",
+    "subtitle": "smVendor - panel logowania",
+    "usernameLabel": "Login",
+    "passwordLabel": "Hasło",
+    "submit": "Zaloguj się",
+    "submitting": "Logowanie...",
+    "missingFields": "Wpisz login i hasło.",
+    "errors": {
+      "invalidCredentials": "Nieprawidłowy login lub hasło.",
+      "cipUnreachable": "Nie udało się połączyć z CIP.",
+      "tooManyAttempts": "Zbyt wiele prób logowania - spróbuj ponownie za chwilę.",
+      "serverUnreachable": "Nie udało się połączyć z serwerem."
+    }
+  },
+  "orders": {
+    "title": "Zamówienia",
+    "empty": "Brak aktywnych zamówień.",
+    "loading": "Wczytywanie...",
+    "loadError": "Nie udało się pobrać listy zamówień.",
+    "retry": "Spróbuj ponownie",
+    "types": {
+      "water_refill": "Dolewanie wody",
+      "material_order": "Zamówienie materiału",
+      "spool_order": "Zamówienie szpul",
+      "goods_transport": "Transport półproduktów",
+      "waste_removal": "Wywożenie odpadu",
+      "warehouse_return": "Zwrot na magazyn",
+      "machine_transport": "Transport maszyny"
+    },
+    "status": {
+      "new": "Nowe",
+      "inProgress": "W realizacji",
+      "delivered": "Dostarczone",
+      "done": "Zrealizowane",
+      "cancelled": "Anulowane",
+      "problem": "Problem"
+    },
+    "card": {
+      "employeeNo": "Zlecający",
+      "take": "Rozpocznij realizację",
+      "taken": "Już realizujesz",
+      "takenBy": "Realizuje {who}",
+      "problemFromRequester": "Zamawiający zgłosił problem",
+      "problemWithRequester": "Czeka na zamawiającego"
+    },
+    "detail": {
+      "line": "Linia",
+      "productionOrderNo": "Numer zamówienia",
+      "employeeNo": "Zlecający",
+      "fulfilledBy": "Zrealizował",
+      "deliveredBy": "Dostarczył",
+      "createdAt": "Utworzono",
+      "itemsTitle": "Pozycje",
+      "issued": "Wydano: {value}",
+      "take": "Rozpocznij realizację",
+      "deliver": "Dostarczone",
+      "deliverError": "Nie udało się oznaczyć zamówienia jako dostarczone.",
+      "awaitingAcceptance": "Oczekuje na potwierdzenie odbioru.",
+      "reportProblem": "Zgłoś problem",
+      "reportProblemTitle": "Zgłoszenie problemu",
+      "reportProblemDescription": "Napisz, co blokuje transport - zamawiający to zobaczy i ma to rozwiązać.",
+      "reportProblemPlaceholder": "Na czym polega problem?",
+      "reportProblemSubmit": "Zgłoś",
+      "reportProblemCancel": "Anuluj",
+      "reportProblemError": "Nie udało się zgłosić problemu.",
+      "problemWaiting": "Zgłoszono problem - czeka na zamawiającego",
+      "problemResolvedBy": "{who} oznaczył problem jako rozwiązany",
+      "problemFromRequester": "Zamawiający zgłosił problem",
+      "problemResolve": "Problem rozwiązany",
+      "problemResolveHint": "Popraw to i oznacz, że gotowe - potem dostarcz ponownie.",
+      "resolveError": "Nie udało się oznaczyć problemu jako rozwiązanego.",
+      "chat": "Czat",
+      "chatSoon": "wkrótce"
+    },
+    "sectionInProgress": "W realizacji",
+    "sectionNew": "Nowe zamówienia",
+    "sectionDelivered": "Oczekują na potwierdzenie",
+    "history": {
+      "empty": "Brak zrealizowanych zamówień.",
+      "loadError": "Nie udało się pobrać historii.",
+      "today": "Dziś",
+      "yesterday": "Wczoraj"
+    },
+    "sectionProblem": "Problem"
+  },
+  "account": {
+    "logout": "Wyloguj",
+    "language": "Język",
+    "languagePolish": "Polski",
+    "languageEnglish": "English",
+    "theme": "Motyw",
+    "themeSystem": "Systemowy",
+    "themeLight": "Jasny",
+    "themeDark": "Ciemny",
+    "deviceLabel": "Oznaczenie wózka",
+    "deviceLabelHint": "Widoczne w Historii logowania (wps) przy każdym logowaniu z tego urządzenia.",
+    "save": "Zapisz"
+  }
+}

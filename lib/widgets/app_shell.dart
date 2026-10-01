@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 import '../features/account/account_page.dart';
-import '../features/dashboard/dashboard_page.dart';
+import '../features/orders/history_page.dart';
+import '../features/orders/orders_page.dart';
+import '../i18n/gen/strings.g.dart';
 
 /// Below this width (a phone in portrait or a small phone in landscape) the
 /// nav is a bottom bar (see _BottomNav) - same breakpoint idea as wps's own
@@ -33,21 +35,31 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _selected = 0;
-
-  static const _items = [
-    _NavEntry(LucideIcons.layoutDashboard, 'Pulpit', DashboardPage()),
-    _NavEntry(LucideIcons.user, 'Konto', AccountPage()),
-  ];
+  // Narrows _SideNav to an icon rail - useful on a tablet, where the wide
+  // layout kicks in (see _kWideBreakpoint) but a 260px side nav still eats
+  // a chunk of a smaller tablet screen's width. Plain widget state (not
+  // persisted) - same "just a toggle" scope as wps's own, minus the
+  // localStorage carry-over, which nothing here has asked for yet.
+  bool _collapsed = false;
 
   void _select(int index) => setState(() => _selected = index);
+  void _toggleCollapsed() => setState(() => _collapsed = !_collapsed);
 
   @override
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
+    final t = context.t.nav;
+    // Built per-build (not static const) since the labels come from context.t
+    // and must follow the current locale (see core/session/locale_providers.dart).
+    final items = [
+      _NavEntry(LucideIcons.truck, t.orders, const OrdersPage()),
+      _NavEntry(LucideIcons.history, t.history, const HistoryPage()),
+      _NavEntry(LucideIcons.user, t.account, const AccountPage()),
+    ];
     final wide = MediaQuery.sizeOf(context).width >= _kWideBreakpoint;
 
-    final header = _Header(title: _items[_selected].label);
-    final page = _items[_selected].page;
+    final header = _Header(title: items[_selected].label);
+    final page = items[_selected].page;
 
     return ColoredBox(
       color: theme.colorScheme.background,
@@ -55,7 +67,13 @@ class _AppShellState extends State<AppShell> {
         child: wide
             ? Row(
                 children: [
-                  _SideNav(items: _items, selected: _selected, onSelect: _select),
+                  _SideNav(
+                    items: items,
+                    selected: _selected,
+                    onSelect: _select,
+                    collapsed: _collapsed,
+                    onToggleCollapsed: _toggleCollapsed,
+                  ),
                   Expanded(
                     child: Column(children: [header, Expanded(child: page)]),
                   ),
@@ -65,7 +83,7 @@ class _AppShellState extends State<AppShell> {
                 children: [
                   header,
                   Expanded(child: page),
-                  _BottomNav(items: _items, selected: _selected, onSelect: _select),
+                  _BottomNav(items: items, selected: _selected, onSelect: _select),
                 ],
               ),
       ),
@@ -100,19 +118,31 @@ class _Header extends StatelessWidget {
 
 /// Tablet/desktop: an always-visible column down the left, wps's own
 /// sidebar design (app/dashboard/layout.js) - the SV badge + app name up
-/// top, then the nav list. No collapse-to-icons toggle yet (wps has one) -
-/// add it if this ever needs to share space with something else.
+/// top, then the nav list, then the collapse toggle at the bottom (same
+/// place wps puts "Zwiń nawigację"). Collapsed, this narrows to a 72px
+/// icon rail - the badge/app name and every row's label disappear, same
+/// as wps's own collapsed state.
 class _SideNav extends StatelessWidget {
-  const _SideNav({required this.items, required this.selected, required this.onSelect});
+  const _SideNav({
+    required this.items,
+    required this.selected,
+    required this.onSelect,
+    required this.collapsed,
+    required this.onToggleCollapsed,
+  });
   final List<_NavEntry> items;
   final int selected;
   final ValueChanged<int> onSelect;
+  final bool collapsed;
+  final VoidCallback onToggleCollapsed;
 
   @override
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
-    return Container(
-      width: 260,
+    final t = context.t.nav;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      width: collapsed ? 72 : 260,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         border: Border(right: BorderSide(color: theme.colorScheme.border)),
@@ -121,6 +151,7 @@ class _SideNav extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: collapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
               Container(
                 width: 36,
@@ -135,12 +166,26 @@ class _SideNav extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Text('smVendor', style: theme.textTheme.p.copyWith(fontWeight: FontWeight.w600)),
+              if (!collapsed) ...[
+                const SizedBox(width: 10),
+                Text('smVendor', style: theme.textTheme.p.copyWith(fontWeight: FontWeight.w600)),
+              ],
             ],
           ),
           const SizedBox(height: 24),
-          for (var i = 0; i < items.length; i++) _SideNavRow(entry: items[i], active: i == selected, onTap: () => onSelect(i)),
+          for (var i = 0; i < items.length; i++)
+            _SideNavRow(entry: items[i], active: i == selected, collapsed: collapsed, onTap: () => onSelect(i)),
+          const Spacer(),
+          _SideNavRow(
+            entry: _NavEntry(
+              collapsed ? LucideIcons.panelLeftOpen : LucideIcons.panelLeftClose,
+              collapsed ? t.expand : t.collapse,
+              const SizedBox.shrink(),
+            ),
+            active: false,
+            collapsed: collapsed,
+            onTap: onToggleCollapsed,
+          ),
         ],
       ),
     );
@@ -148,38 +193,39 @@ class _SideNav extends StatelessWidget {
 }
 
 class _SideNavRow extends StatelessWidget {
-  const _SideNavRow({required this.entry, required this.active, required this.onTap});
+  const _SideNavRow({required this.entry, required this.active, required this.collapsed, required this.onTap});
   final _NavEntry entry;
   final bool active;
+  final bool collapsed;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
     final color = active ? theme.colorScheme.primary : theme.colorScheme.mutedForeground;
+    final row = Container(
+      padding: EdgeInsets.symmetric(horizontal: collapsed ? 0 : 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: active ? theme.colorScheme.accent : null,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: collapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+        children: [
+          Icon(entry.icon, size: 20, color: color),
+          if (!collapsed) ...[
+            const SizedBox(width: 12),
+            Text(
+              entry.label,
+              style: theme.textTheme.p.copyWith(color: color, fontWeight: active ? FontWeight.w600 : FontWeight.w500),
+            ),
+          ],
+        ],
+      ),
+    );
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          decoration: BoxDecoration(
-            color: active ? theme.colorScheme.accent : null,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              Icon(entry.icon, size: 20, color: color),
-              const SizedBox(width: 12),
-              Text(
-                entry.label,
-                style: theme.textTheme.p.copyWith(color: color, fontWeight: active ? FontWeight.w600 : FontWeight.w500),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: row),
     );
   }
 }
