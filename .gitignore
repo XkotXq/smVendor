@@ -46,3 +46,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Konfiguracja lokalnych narzędzi agentowych, nie część aplikacji.
+.codex/

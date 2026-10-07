@@ -38,6 +38,9 @@ dependencies:
   # Same versions as ../smpda - one app family, one shadcn/navy design
   # system (see lib/theme/, mirrored from ../smpda's own, itself mirroring
   # wps's app/globals.css). shadcn_ui pulls in lucide_icons_flutter too.
+  # Zdjecie przy zgloszeniu krotkich odcinkow (features/orders/photo_field.dart).
+  # Ta sama wersja co w smOrder, zeby obie aplikacje uzywaly jednej.
+  image_picker: ^1.2.3
   shadcn_ui: ^0.57.0
   flutter_riverpod: ^3.4.3
   dio: ^5.11.1

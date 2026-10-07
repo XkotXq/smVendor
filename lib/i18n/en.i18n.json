@@ -1,10 +1,11 @@
 {
   "nav": {
-    "orders": "Orders",
     "account": "Account",
     "collapse": "Collapse navigation",
     "expand": "Expand navigation",
-    "history": "History"
+    "history": "History",
+    "available": "Tasks",
+    "inProgress": "In progress"
   },
   "login": {
     "title": "Log in",
@@ -23,7 +24,6 @@
   },
   "orders": {
     "title": "Orders",
-    "empty": "No active orders.",
     "loading": "Loading...",
     "loadError": "Failed to load the order list.",
     "retry": "Try again",
@@ -47,10 +47,12 @@
     "card": {
       "employeeNo": "Requested by",
       "take": "Start fulfilling",
-      "taken": "Already yours",
       "takenBy": "Taken by {who}",
       "problemFromRequester": "The requester reported a problem",
-      "problemWithRequester": "Waiting for the requester"
+      "problemWithRequester": "Waiting for the requester",
+      "deliver": "Delivered",
+      "awaitingConfirm": "Awaiting confirmation",
+      "itemsShort": "{n} items"
     },
     "detail": {
       "line": "Line",
@@ -67,7 +69,7 @@
       "awaitingAcceptance": "Awaiting delivery confirmation.",
       "reportProblem": "Report a problem",
       "reportProblemTitle": "Report a problem",
-      "reportProblemDescription": "Describe what is blocking the transport - the requester sees this and is asked to fix it.",
+      "reportProblemDescription": "Describe what is blocking the transport.",
       "reportProblemPlaceholder": "What is the problem?",
       "reportProblemSubmit": "Report",
       "reportProblemCancel": "Cancel",
@@ -76,10 +78,9 @@
       "problemResolvedBy": "{who} marked the problem resolved",
       "problemFromRequester": "The requester reported a problem",
       "problemResolve": "Problem solved",
-      "problemResolveHint": "Put it right, mark it done, then deliver again.",
       "resolveError": "Could not mark the problem as solved.",
       "chat": "Chat",
-      "chatSoon": "soon"
+      "frpStockButton": "FRP stock"
     },
     "sectionInProgress": "In progress",
     "sectionNew": "New orders",
@@ -88,9 +89,19 @@
       "empty": "No finished orders yet.",
       "loadError": "Failed to load the history.",
       "today": "Today",
-      "yesterday": "Yesterday"
+      "yesterday": "Yesterday",
+      "allLoaded": "That's everything."
     },
-    "sectionProblem": "Problem"
+    "sectionProblem": "Problem",
+    "chat": {
+      "title": "Chat",
+      "placeholder": "Write a message...",
+      "empty": "No messages.",
+      "loadError": "Could not load the chat.",
+      "sendError": "Could not send the message."
+    },
+    "emptyAvailable": "Nothing to take.",
+    "emptyMine": "You are not running any task."
   },
   "account": {
     "logout": "Log out",
@@ -100,9 +111,31 @@
     "theme": "Theme",
     "themeSystem": "System",
     "themeLight": "Light",
-    "themeDark": "Dark",
-    "deviceLabel": "Forklift label",
-    "deviceLabelHint": "Shown in wps's Login history for every login from this device.",
-    "save": "Save"
+    "themeDark": "Dark"
+  },
+  "frpStock": {
+    "title": "FRP stock",
+    "loading": "Loading...",
+    "loadError": "Could not load the FRP stock.",
+    "retry": "Try again",
+    "empty": "Nothing here.",
+    "searchPlaceholder": "Name, item, drum or location",
+    "fromThisOrder": "On this order",
+    "otherDrums": "Other drums",
+    "reserved": "Reserved"
+  },
+  "shortLengths": {
+    "title": "Short lengths",
+    "button": "Report short lengths",
+    "material": "Material",
+    "quantity": "Quantity",
+    "submit": "Report",
+    "reported": "Reported",
+    "submitError": "Could not send the report.",
+    "photo": "Photo",
+    "photoTake": "Take a photo",
+    "photoPick": "From gallery",
+    "photoError": "Could not load the photo.",
+    "photoUploadError": "Report saved, but the photo did not upload."
   }
 }

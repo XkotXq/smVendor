@@ -42,6 +42,8 @@ class TranslationsEn with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _Translations$login$en login = _Translations$login$en._(_root);
 	@override late final _Translations$orders$en orders = _Translations$orders$en._(_root);
 	@override late final _Translations$account$en account = _Translations$account$en._(_root);
+	@override late final _Translations$frpStock$en frpStock = _Translations$frpStock$en._(_root);
+	@override late final _Translations$shortLengths$en shortLengths = _Translations$shortLengths$en._(_root);
 }
 
 // Path: nav
@@ -51,11 +53,12 @@ class _Translations$nav$en implements Translations$nav$pl {
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get orders => 'Orders';
 	@override String get account => 'Account';
 	@override String get collapse => 'Collapse navigation';
 	@override String get expand => 'Expand navigation';
 	@override String get history => 'History';
+	@override String get available => 'Tasks';
+	@override String get inProgress => 'In progress';
 }
 
 // Path: login
@@ -83,7 +86,6 @@ class _Translations$orders$en implements Translations$orders$pl {
 
 	// Translations
 	@override String get title => 'Orders';
-	@override String get empty => 'No active orders.';
 	@override String get loading => 'Loading...';
 	@override String get loadError => 'Failed to load the order list.';
 	@override String get retry => 'Try again';
@@ -96,6 +98,9 @@ class _Translations$orders$en implements Translations$orders$pl {
 	@override String get sectionDelivered => 'Awaiting confirmation';
 	@override late final _Translations$orders$history$en history = _Translations$orders$history$en._(_root);
 	@override String get sectionProblem => 'Problem';
+	@override late final _Translations$orders$chat$en chat = _Translations$orders$chat$en._(_root);
+	@override String get emptyAvailable => 'Nothing to take.';
+	@override String get emptyMine => 'You are not running any task.';
 }
 
 // Path: account
@@ -113,9 +118,45 @@ class _Translations$account$en implements Translations$account$pl {
 	@override String get themeSystem => 'System';
 	@override String get themeLight => 'Light';
 	@override String get themeDark => 'Dark';
-	@override String get deviceLabel => 'Forklift label';
-	@override String get deviceLabelHint => 'Shown in wps\'s Login history for every login from this device.';
-	@override String get save => 'Save';
+}
+
+// Path: frpStock
+class _Translations$frpStock$en implements Translations$frpStock$pl {
+	_Translations$frpStock$en._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'FRP stock';
+	@override String get loading => 'Loading...';
+	@override String get loadError => 'Could not load the FRP stock.';
+	@override String get retry => 'Try again';
+	@override String get empty => 'Nothing here.';
+	@override String get searchPlaceholder => 'Name, item, drum or location';
+	@override String get fromThisOrder => 'On this order';
+	@override String get otherDrums => 'Other drums';
+	@override String get reserved => 'Reserved';
+}
+
+// Path: shortLengths
+class _Translations$shortLengths$en implements Translations$shortLengths$pl {
+	_Translations$shortLengths$en._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Short lengths';
+	@override String get button => 'Report short lengths';
+	@override String get material => 'Material';
+	@override String get quantity => 'Quantity';
+	@override String get submit => 'Report';
+	@override String get reported => 'Reported';
+	@override String get submitError => 'Could not send the report.';
+	@override String get photo => 'Photo';
+	@override String get photoTake => 'Take a photo';
+	@override String get photoPick => 'From gallery';
+	@override String get photoError => 'Could not load the photo.';
+	@override String get photoUploadError => 'Report saved, but the photo did not upload.';
 }
 
 // Path: login.errors
@@ -171,10 +212,12 @@ class _Translations$orders$card$en implements Translations$orders$card$pl {
 	// Translations
 	@override String get employeeNo => 'Requested by';
 	@override String get take => 'Start fulfilling';
-	@override String get taken => 'Already yours';
 	@override String takenBy({required Object who}) => 'Taken by ${who}';
 	@override String get problemFromRequester => 'The requester reported a problem';
 	@override String get problemWithRequester => 'Waiting for the requester';
+	@override String get deliver => 'Delivered';
+	@override String get awaitingConfirm => 'Awaiting confirmation';
+	@override String itemsShort({required Object n}) => '${n} items';
 }
 
 // Path: orders.detail
@@ -198,7 +241,7 @@ class _Translations$orders$detail$en implements Translations$orders$detail$pl {
 	@override String get awaitingAcceptance => 'Awaiting delivery confirmation.';
 	@override String get reportProblem => 'Report a problem';
 	@override String get reportProblemTitle => 'Report a problem';
-	@override String get reportProblemDescription => 'Describe what is blocking the transport - the requester sees this and is asked to fix it.';
+	@override String get reportProblemDescription => 'Describe what is blocking the transport.';
 	@override String get reportProblemPlaceholder => 'What is the problem?';
 	@override String get reportProblemSubmit => 'Report';
 	@override String get reportProblemCancel => 'Cancel';
@@ -207,10 +250,9 @@ class _Translations$orders$detail$en implements Translations$orders$detail$pl {
 	@override String problemResolvedBy({required Object who}) => '${who} marked the problem resolved';
 	@override String get problemFromRequester => 'The requester reported a problem';
 	@override String get problemResolve => 'Problem solved';
-	@override String get problemResolveHint => 'Put it right, mark it done, then deliver again.';
 	@override String get resolveError => 'Could not mark the problem as solved.';
 	@override String get chat => 'Chat';
-	@override String get chatSoon => 'soon';
+	@override String get frpStockButton => 'FRP stock';
 }
 
 // Path: orders.history
@@ -224,6 +266,21 @@ class _Translations$orders$history$en implements Translations$orders$history$pl 
 	@override String get loadError => 'Failed to load the history.';
 	@override String get today => 'Today';
 	@override String get yesterday => 'Yesterday';
+	@override String get allLoaded => 'That\'s everything.';
+}
+
+// Path: orders.chat
+class _Translations$orders$chat$en implements Translations$orders$chat$pl {
+	_Translations$orders$chat$en._(this._root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Chat';
+	@override String get placeholder => 'Write a message...';
+	@override String get empty => 'No messages.';
+	@override String get loadError => 'Could not load the chat.';
+	@override String get sendError => 'Could not send the message.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -234,11 +291,12 @@ class _Translations$orders$history$en implements Translations$orders$history$pl 
 extension on TranslationsEn {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'nav.orders' => 'Orders',
 			'nav.account' => 'Account',
 			'nav.collapse' => 'Collapse navigation',
 			'nav.expand' => 'Expand navigation',
 			'nav.history' => 'History',
+			'nav.available' => 'Tasks',
+			'nav.inProgress' => 'In progress',
 			'login.title' => 'Log in',
 			'login.subtitle' => 'smVendor - login panel',
 			'login.usernameLabel' => 'Username',
@@ -251,7 +309,6 @@ extension on TranslationsEn {
 			'login.errors.tooManyAttempts' => 'Too many login attempts - try again in a moment.',
 			'login.errors.serverUnreachable' => 'Failed to connect to the server.',
 			'orders.title' => 'Orders',
-			'orders.empty' => 'No active orders.',
 			'orders.loading' => 'Loading...',
 			'orders.loadError' => 'Failed to load the order list.',
 			'orders.retry' => 'Try again',
@@ -270,10 +327,12 @@ extension on TranslationsEn {
 			'orders.status.problem' => 'Problem',
 			'orders.card.employeeNo' => 'Requested by',
 			'orders.card.take' => 'Start fulfilling',
-			'orders.card.taken' => 'Already yours',
 			'orders.card.takenBy' => ({required Object who}) => 'Taken by ${who}',
 			'orders.card.problemFromRequester' => 'The requester reported a problem',
 			'orders.card.problemWithRequester' => 'Waiting for the requester',
+			'orders.card.deliver' => 'Delivered',
+			'orders.card.awaitingConfirm' => 'Awaiting confirmation',
+			'orders.card.itemsShort' => ({required Object n}) => '${n} items',
 			'orders.detail.line' => 'Line',
 			'orders.detail.productionOrderNo' => 'Order number',
 			'orders.detail.employeeNo' => 'Requested by',
@@ -288,7 +347,7 @@ extension on TranslationsEn {
 			'orders.detail.awaitingAcceptance' => 'Awaiting delivery confirmation.',
 			'orders.detail.reportProblem' => 'Report a problem',
 			'orders.detail.reportProblemTitle' => 'Report a problem',
-			'orders.detail.reportProblemDescription' => 'Describe what is blocking the transport - the requester sees this and is asked to fix it.',
+			'orders.detail.reportProblemDescription' => 'Describe what is blocking the transport.',
 			'orders.detail.reportProblemPlaceholder' => 'What is the problem?',
 			'orders.detail.reportProblemSubmit' => 'Report',
 			'orders.detail.reportProblemCancel' => 'Cancel',
@@ -297,10 +356,9 @@ extension on TranslationsEn {
 			'orders.detail.problemResolvedBy' => ({required Object who}) => '${who} marked the problem resolved',
 			'orders.detail.problemFromRequester' => 'The requester reported a problem',
 			'orders.detail.problemResolve' => 'Problem solved',
-			'orders.detail.problemResolveHint' => 'Put it right, mark it done, then deliver again.',
 			'orders.detail.resolveError' => 'Could not mark the problem as solved.',
 			'orders.detail.chat' => 'Chat',
-			'orders.detail.chatSoon' => 'soon',
+			'orders.detail.frpStockButton' => 'FRP stock',
 			'orders.sectionInProgress' => 'In progress',
 			'orders.sectionNew' => 'New orders',
 			'orders.sectionDelivered' => 'Awaiting confirmation',
@@ -308,7 +366,15 @@ extension on TranslationsEn {
 			'orders.history.loadError' => 'Failed to load the history.',
 			'orders.history.today' => 'Today',
 			'orders.history.yesterday' => 'Yesterday',
+			'orders.history.allLoaded' => 'That\'s everything.',
 			'orders.sectionProblem' => 'Problem',
+			'orders.chat.title' => 'Chat',
+			'orders.chat.placeholder' => 'Write a message...',
+			'orders.chat.empty' => 'No messages.',
+			'orders.chat.loadError' => 'Could not load the chat.',
+			'orders.chat.sendError' => 'Could not send the message.',
+			'orders.emptyAvailable' => 'Nothing to take.',
+			'orders.emptyMine' => 'You are not running any task.',
 			'account.logout' => 'Log out',
 			'account.language' => 'Language',
 			'account.languagePolish' => 'Polski',
@@ -317,9 +383,27 @@ extension on TranslationsEn {
 			'account.themeSystem' => 'System',
 			'account.themeLight' => 'Light',
 			'account.themeDark' => 'Dark',
-			'account.deviceLabel' => 'Forklift label',
-			'account.deviceLabelHint' => 'Shown in wps\'s Login history for every login from this device.',
-			'account.save' => 'Save',
+			'frpStock.title' => 'FRP stock',
+			'frpStock.loading' => 'Loading...',
+			'frpStock.loadError' => 'Could not load the FRP stock.',
+			'frpStock.retry' => 'Try again',
+			'frpStock.empty' => 'Nothing here.',
+			'frpStock.searchPlaceholder' => 'Name, item, drum or location',
+			'frpStock.fromThisOrder' => 'On this order',
+			'frpStock.otherDrums' => 'Other drums',
+			'frpStock.reserved' => 'Reserved',
+			'shortLengths.title' => 'Short lengths',
+			'shortLengths.button' => 'Report short lengths',
+			'shortLengths.material' => 'Material',
+			'shortLengths.quantity' => 'Quantity',
+			'shortLengths.submit' => 'Report',
+			'shortLengths.reported' => 'Reported',
+			'shortLengths.submitError' => 'Could not send the report.',
+			'shortLengths.photo' => 'Photo',
+			'shortLengths.photoTake' => 'Take a photo',
+			'shortLengths.photoPick' => 'From gallery',
+			'shortLengths.photoError' => 'Could not load the photo.',
+			'shortLengths.photoUploadError' => 'Report saved, but the photo did not upload.',
 			_ => null,
 		};
 	}

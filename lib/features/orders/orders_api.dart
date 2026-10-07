@@ -15,7 +15,9 @@ class OrderItem {
     required this.quantity,
     required this.unit,
     required this.issuedQuantity,
+    this.issueCount = 0,
     required this.ruleNote,
+    this.category = '',
   });
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
@@ -24,7 +26,9 @@ class OrderItem {
     quantity: json['quantity'] as String? ?? '0',
     unit: json['unit'] as String? ?? '',
     issuedQuantity: json['issuedQuantity'] as String? ?? '0',
+    issueCount: (json['issueCount'] as num?)?.toInt() ?? 0,
     ruleNote: json['ruleNote'] as String? ?? '',
+    category: json['category'] as String? ?? '',
   );
 
   final String itemNo;
@@ -33,12 +37,26 @@ class OrderItem {
   final String unit;
   final String issuedQuantity;
 
+  /// How many times something was issued against this line (wpsApi's
+  /// issue_count) - the signal for "done", because [quantity] is a piece
+  /// count while [issuedQuantity] is the catalog's own amount in its own
+  /// unit, so comparing the two compared pieces with kilograms.
+  final int issueCount;
+
   /// The standing instruction for this material on the destination line -
   /// "Wytyczne do transportów", resolved server-side (see wpsApi's
   /// order_items_progress). Empty for the ordinary case.
   final String ruleNote;
 
-  bool get isFulfilled => (double.tryParse(issuedQuantity) ?? 0) >= (double.tryParse(quantity) ?? 0);
+  /// The catalog's own category for this material ('FRP', 'Drum',
+  /// 'GLYCL', ...), resolved server-side in order_items_progress and sent
+  /// with every line. What tells this app an order involves FRP, which has
+  /// its own live stock list worth opening next to the order.
+  final String category;
+
+  bool get isFrp => category.toUpperCase() == 'FRP';
+
+  bool get isFulfilled => issueCount > 0;
 }
 
 /// One transport order - shapes wpsApi's own orders/order_items (see
@@ -62,9 +80,14 @@ class TransportOrder {
     required this.cancelledAt,
     required this.problemNote,
     required this.problemReportedFrom,
+    this.messageCount = 0,
+    this.editing = false,
+    this.unreadCount = 0,
+    this.deliverableInSeconds,
     required this.problemResolvedBy,
     required this.problemResolvedAt,
     required this.note,
+    this.priority = 'normal',
     required this.details,
     required this.items,
   });
@@ -92,9 +115,14 @@ class TransportOrder {
     // answers**. "" when no problem is open. See wpsApi's
     // problem_reported_from.
     problemReportedFrom: json['problemReportedFrom'] as String? ?? '',
+    messageCount: (json['messageCount'] as num?)?.toInt() ?? 0,
+    editing: json['editing'] as bool? ?? false,
+    unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
+    deliverableInSeconds: (json['deliverableInSeconds'] as num?)?.toInt(),
     problemResolvedBy: json['problemResolvedBy'] as String?,
     problemResolvedAt: json['problemResolvedAt'] != null ? DateTime.tryParse(json['problemResolvedAt'] as String) : null,
     note: json['note'] as String? ?? '-',
+    priority: json['priority'] as String? ?? 'normal',
     details: (json['details'] as Map?)?.cast<String, dynamic>() ?? const {},
     items: (json['items'] as List? ?? const []).map((e) => OrderItem.fromJson(e as Map<String, dynamic>)).toList(),
   );
@@ -133,11 +161,40 @@ class TransportOrder {
   /// pending.
   final String problemReportedFrom;
 
+  /// How many chat messages this order has - what the "Czat" button shows,
+  /// so there is no need to open a thread to find out it is empty.
+  final int messageCount;
+
+  /// The person who placed it has it open for editing right now, so it is
+  /// kept out of this queue and cannot be taken (wpsApi refuses that too) -
+  /// nobody should start hauling a transport whose contents are being
+  /// rewritten. Clears by itself if their app dies mid-edit: the lock
+  /// expires server-side.
+  final bool editing;
+
+  /// How many of them are new for the person looking - 0 unless the request
+  /// named a viewer. This, not [messageCount], is what a badge should show.
+  final int unreadCount;
+
+  /// Seconds this transport still has to run before it can be marked
+  /// delivered, straight from the server (null = no wait applies; see
+  /// wpsApi's deliverableInSeconds). Only "Transport półproduktów" has one:
+  /// it has nothing to issue and a real distance to cover, so without it the
+  /// order is takeable and deliverable in the same second. **Measured on the
+  /// server clock on purpose** - the screen ticks it down locally between
+  /// polls and re-syncs on each one.
+  final int? deliverableInSeconds;
+
   /// Who resolved the last problem, and when - what the operator is shown
   /// as "you can carry on" after being blocked.
   final String? problemResolvedBy;
   final DateTime? problemResolvedAt;
   final String note;
+
+  /// How urgent the requester said it is: 'normal', 'urgent' or 'critical'
+  /// (wpsApi's PRIORITIES, least to most). Read-only here - it is set in
+  /// smOrder - and shown as the coloured three-bar icon on the card.
+  final String priority;
   final Map<String, dynamic> details;
   final List<OrderItem> items;
 
@@ -181,6 +238,42 @@ class TransportOrder {
   }
 }
 
+/// A refusal from wpsApi, with the Polish message it sent - e.g.
+/// "Zamówienie przyjął już 4601270." when two operators pressed
+/// "Rozpocznij realizację" at the same moment, which the server settles by
+/// letting exactly one of them win.
+///
+/// Worth showing verbatim, unlike a dropped connection: it says what
+/// happened and what the order's state now is. Anything that is not a
+/// refusal (no connection, a 500) is left as the original DioException.
+/// One chat message on an order - see wpsApi's order_messages.
+class OrderMessage {
+  const OrderMessage({required this.id, required this.author, required this.body, required this.at});
+
+  factory OrderMessage.fromJson(Map<String, dynamic> json) => OrderMessage(
+    id: json['id'] as String,
+    author: json['author'] as String? ?? '',
+    body: json['body'] as String? ?? '',
+    at: DateTime.tryParse(json['at'] as String? ?? '') ?? DateTime.now(),
+  );
+
+  final String id;
+
+  /// The employee number that wrote it - asserted by the client that sent
+  /// it, like taken_by/delivered_by everywhere else in this API.
+  final String author;
+  final String body;
+  final DateTime at;
+}
+
+class OrderActionFailure implements Exception {
+  const OrderActionFailure(this.message);
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 /// GET /orders (list + one), take/deliver actions (see wpsapi's
 /// routes/orders.js) - client-side, same direct-to-wpsapi pattern as
 /// auth_api.dart, using the shared bearer token (authedDioProvider) every
@@ -189,29 +282,93 @@ class OrdersApi {
   OrdersApi(this._dio);
   final Dio _dio;
 
-  Future<List<TransportOrder>> list(String scope) async {
-    final res = await _dio.get<List<dynamic>>('/orders', queryParameters: {'scope': scope});
+  /// One page when [limit] is given, the whole list otherwise.
+  ///
+  /// [before] is the last order already held: the server returns only what
+  /// is **older than that exact row**, not "skip N" - orders close while
+  /// somebody is scrolling, and an offset would then repeat or skip a row at
+  /// every page boundary (see wpsApi's listOrders).
+  /// [viewer] is the logged-in employee number: the server counts each
+  /// order's unread messages **for that person** and sends it as
+  /// `unreadCount` (see wpsApi's unreadCountsByOrderIds). Without it every
+  /// unread count comes back 0 - there is no per-user auth, so the caller
+  /// has to say who is asking.
+  Future<List<TransportOrder>> list(String scope, {int? limit, TransportOrder? before, String? viewer}) async {
+    final res = await _dio.get<List<dynamic>>(
+      '/orders',
+      queryParameters: {
+        'scope': scope,
+        'limit': ?limit,
+        'beforeCreatedAt': ?before?.createdAt.toUtc().toIso8601String(),
+        'beforeId': ?before?.id,
+        'viewer': ?viewer,
+      },
+    );
     return (res.data ?? []).map((e) => TransportOrder.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<TransportOrder> get(String id) async {
-    final res = await _dio.get<Map<String, dynamic>>('/orders/$id');
+  Future<TransportOrder> get(String id, {String? viewer}) async {
+    final res = await _dio.get<Map<String, dynamic>>('/orders/$id', queryParameters: {'viewer': ?viewer});
     return TransportOrder.fromJson(res.data!);
   }
 
   /// "Rozpocznij realizację" - new -> in_progress (see wpsapi's takeOrder).
-  Future<TransportOrder> take(String id, String takenBy) async {
+  Future<TransportOrder> take(String id, String takenBy) => _act(() async {
     final res = await _dio.post<Map<String, dynamic>>('/orders/$id/take', data: {'takenBy': takenBy});
     return TransportOrder.fromJson(res.data!);
+  });
+
+/// The chat on one order, oldest first. With [afterId] it returns **only
+  /// what is newer**, which is what the chat screen polls with every second
+  /// - the answer is an empty list almost every time (see OrderChatPage).
+  Future<List<OrderMessage>> messages(String orderId, {String? afterId}) async {
+    final res = await _dio.get<List<dynamic>>(
+      '/orders/$orderId/messages',
+      queryParameters: {'afterId': ?afterId},
+    );
+    return (res.data ?? []).map((e) => OrderMessage.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// "I have read up to here" - sent by the chat screen as it shows
+  /// messages, which is what makes [TransportOrder.unreadCount] mean
+  /// anything. Fire-and-forget: failing to record it only leaves a badge up
+  /// a moment longer, so it must never interrupt reading.
+  Future<void> markRead(String orderId, {required String employeeNo, required String lastReadId}) async {
+    await _dio.post<Map<String, dynamic>>(
+      '/orders/$orderId/messages/read',
+      data: {'employeeNo': employeeNo, 'lastReadId': lastReadId},
+    );
+  }
+
+  Future<OrderMessage> sendMessage(String orderId, {required String author, required String body}) => _act(() async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/orders/$orderId/messages',
+      data: {'author': author, 'body': body},
+    );
+    return OrderMessage.fromJson(res.data!);
+  });
+
+  /// Unwraps wpsApi's own `{ "error": "..." }` into an [OrderActionFailure],
+  /// so every action below can be written once and still report a refusal
+  /// in the words the server chose.
+  Future<T> _act<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      final message = data is Map ? data['error'] as String? : null;
+      if (message != null && message.isNotEmpty) throw OrderActionFailure(message);
+      rethrow;
+    }
   }
 
   /// "Dostarczone" - in_progress -> delivered, refused server-side unless
   /// every item is actually fully issued (see wpsapi's deliverOrder) even
   /// if this client's own checklist happens to already agree.
-  Future<TransportOrder> deliver(String id, String deliveredBy) async {
+  Future<TransportOrder> deliver(String id, String deliveredBy) => _act(() async {
     final res = await _dio.post<Map<String, dynamic>>('/orders/$id/deliver', data: {'deliveredBy': deliveredBy});
     return TransportOrder.fromJson(res.data!);
-  }
+  });
 
   /// "Zgłoś problem" - in_progress -> **problem** (see wpsApi's
   /// reportOrderProblem). The order is deliberately *not* cancelled: it

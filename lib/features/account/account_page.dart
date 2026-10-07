@@ -3,180 +3,214 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-import '../../core/session/device_label_providers.dart';
 import '../../core/session/locale_providers.dart';
 import '../../core/session/session_providers.dart';
 import '../../core/session/theme_providers.dart';
 import '../../i18n/gen/strings.g.dart';
+import '../../widgets/option_chip.dart';
+import '../auth/login_screen.dart';
 
-/// "Konto" - who's signed in and the way out. Same placement as smpda's own
-/// Konto tab (dashboard_screen.dart's _AccountView) - logout lives here, not
-/// as a persistent element in the side nav/bottom nav themselves, so both
-/// layouts (see widgets/app_shell.dart) only have it in one place.
+/// "Konto" - who is signed in, the two settings this app has, and the way
+/// out.
 ///
-/// Also the only place the PL/EN switch (see core/session/locale_providers.dart),
-/// the theme picker (see core/session/theme_providers.dart) and this
-/// device's own "Oznaczenie wózka" (see core/session/device_label_providers.dart)
-/// live - there's no separate settings page yet, and this is the one screen
-/// every user visits regardless of role.
-class AccountPage extends ConsumerStatefulWidget {
+/// Laid out the way wps lays out a settings panel: an identity block, then
+/// the settings in **one** bordered card with a label above each control
+/// and a hairline between groups, then the destructive action on its own
+/// below it. What was here before was three centred groups floating 32px
+/// apart with no container at all, which read as an unfinished screen - and
+/// its own pill control was a fifth near-copy of a chip this app already
+/// had four of (see widgets/option_chip.dart).
+///
+/// Everything here is **per device, not per person** (see the locale and
+/// theme providers): the phone belongs to a shift.
+
+/// Clearing the session is not enough on its own: nothing in this app
+/// watches it to decide what to show (login pushes the shell and that is
+/// the whole of the routing - see features/auth/login_screen.dart), so
+/// without replacing the stack here "Wyloguj" left the operator inside the
+/// app with no session, every request going out with an empty viewer.
+/// pushAndRemoveUntil drops the shell and this page with it, so Back cannot
+/// return to a signed-out queue either.
+void _logout(BuildContext context, WidgetRef ref) {
+  final navigator = Navigator.of(context);
+  ref.read(sessionProvider.notifier).logout();
+  navigator.pushAndRemoveUntil(
+    PageRouteBuilder(pageBuilder: (context, _, _) => const LoginScreen()),
+    (route) => false,
+  );
+}
+
+/// Up to two initials, for the monogram. A name this app cannot read falls
+/// back to a person glyph rather than to a stray letter.
+String _initials(String name) {
+  final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+  if (parts.isEmpty) return '';
+  final letters = parts.take(2).map((p) => p.characters.first.toUpperCase());
+  return letters.join();
+}
+
+class AccountPage extends ConsumerWidget {
   const AccountPage({super.key});
 
   @override
-  ConsumerState<AccountPage> createState() => _AccountPageState();
-}
-
-class _AccountPageState extends ConsumerState<AccountPage> {
-  final _deviceLabelController = TextEditingController();
-  bool _hydrated = false;
-
-  @override
-  void dispose() {
-    _deviceLabelController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = ShadTheme.of(context);
     final t = context.t.account;
     final session = ref.watch(sessionProvider);
     final locale = ref.watch(localeProvider).value ?? AppLocale.pl;
     final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
-    final deviceLabel = ref.watch(deviceLabelProvider).value ?? '';
-    if (!_hydrated) {
-      _deviceLabelController.text = deviceLabel;
-      _hydrated = true;
-    }
+    final initials = _initials(session?.name ?? '');
 
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (session != null) ...[
-              Text(session.name, style: theme.textTheme.h4, textAlign: TextAlign.center),
-              const SizedBox(height: 4),
-              Text(session.userId, style: theme.textTheme.muted, textAlign: TextAlign.center),
-              const SizedBox(height: 32),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+      children: [
+        if (session != null)
+          Row(
+            children: [
+              // A monogram rather than an avatar: there is no photo to show
+              // and a grey circle with a person icon in it would be a
+              // placeholder pretending to be content.
+              Container(
+                width: 56,
+                height: 56,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: initials.isEmpty
+                    ? Icon(LucideIcons.user, size: 24, color: theme.colorScheme.primaryForeground)
+                    : Text(
+                        initials,
+                        style: theme.textTheme.h4.copyWith(
+                          color: theme.colorScheme.primaryForeground,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      session.name,
+                      style: theme.textTheme.h4.copyWith(fontWeight: FontWeight.w700),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(session.userId, style: theme.textTheme.muted),
+                  ],
+                ),
+              ),
             ],
-            Text(t.language, style: theme.textTheme.small.copyWith(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LocaleOption(
-                  label: t.languagePolish,
-                  selected: locale == AppLocale.pl,
-                  onTap: () => ref.read(localeProvider.notifier).setLocale(AppLocale.pl),
-                ),
-                const SizedBox(width: 12),
-                _LocaleOption(
-                  label: t.languageEnglish,
-                  selected: locale == AppLocale.en,
-                  onTap: () => ref.read(localeProvider.notifier).setLocale(AppLocale.en),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Text(t.theme, style: theme.textTheme.small.copyWith(fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LocaleOption(
-                  label: t.themeSystem,
-                  selected: themeMode == ThemeMode.system,
-                  onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system),
-                ),
-                const SizedBox(width: 12),
-                _LocaleOption(
-                  label: t.themeLight,
-                  selected: themeMode == ThemeMode.light,
-                  onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
-                ),
-                const SizedBox(width: 12),
-                _LocaleOption(
-                  label: t.themeDark,
-                  selected: themeMode == ThemeMode.dark,
-                  onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            // This device's own forklift label - set once per device (like
-            // the language above), sent on every login so wps's "Historia
-            // logowania" can show which wózek a login happened on.
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(t.deviceLabel, style: theme.textTheme.small.copyWith(fontWeight: FontWeight.w600)),
-            ),
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(t.deviceLabelHint, style: theme.textTheme.muted.copyWith(fontSize: 12)),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: ShadInput(controller: _deviceLabelController, placeholder: const Text('Wózek 3')),
-                ),
-                const SizedBox(width: 8),
-                ShadButton.outline(
-                  onPressed: () => ref.read(deviceLabelProvider.notifier).setDeviceLabel(_deviceLabelController.text.trim()),
-                  child: Text(t.save),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ShadButton.outline(
-                onPressed: () => ref.read(sessionProvider.notifier).logout(),
-                child: Text(t.logout, style: const TextStyle(fontSize: 18)),
+          ),
+        const SizedBox(height: 24),
+
+        // One card for both settings - they are the same kind of thing and
+        // two cards would have made that a question.
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: theme.colorScheme.border),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SettingLabel(t.language),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  OptionChip(
+                    expand: true,
+                    label: t.languagePolish,
+                    selected: locale == AppLocale.pl,
+                    onTap: () => ref.read(localeProvider.notifier).setLocale(AppLocale.pl),
+                  ),
+                  const SizedBox(width: 10),
+                  OptionChip(
+                    expand: true,
+                    label: t.languageEnglish,
+                    selected: locale == AppLocale.en,
+                    onTap: () => ref.read(localeProvider.notifier).setLocale(AppLocale.en),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Container(height: 1, color: theme.colorScheme.border),
+              ),
+              _SettingLabel(t.theme),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  OptionChip(
+                    expand: true,
+                    icon: LucideIcons.smartphone,
+                    label: t.themeSystem,
+                    selected: themeMode == ThemeMode.system,
+                    onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system),
+                  ),
+                  const SizedBox(width: 8),
+                  OptionChip(
+                    expand: true,
+                    icon: LucideIcons.sun,
+                    label: t.themeLight,
+                    selected: themeMode == ThemeMode.light,
+                    onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
+                  ),
+                  const SizedBox(width: 8),
+                  OptionChip(
+                    expand: true,
+                    icon: LucideIcons.moon,
+                    label: t.themeDark,
+                    selected: themeMode == ThemeMode.dark,
+                    onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 28),
+        // Outside the card and in the destructive colour: it is the one
+        // control here that ends something rather than setting it.
+        SizedBox(
+          height: 52,
+          child: ShadButton.outline(
+            onPressed: () => _logout(context, ref),
+            leading: Icon(LucideIcons.logOut, size: 18, color: theme.colorScheme.destructive),
+            child: Text(
+              t.logout,
+              style: theme.textTheme.p.copyWith(
+                color: theme.colorScheme.destructive,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
 
-/// One option pill - filled when it's the active choice, same active/inactive
-/// colour split as widgets/app_shell.dart's own nav rows (accent background,
-/// primary vs. mutedForeground text) so this reads as "selected" the same way
-/// the rest of the app already does. Used for both the PL/EN switch and the
-/// theme picker above - despite the name, it's generic (label/selected/onTap).
-class _LocaleOption extends StatelessWidget {
-  const _LocaleOption({required this.label, required this.selected, required this.onTap});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
+class _SettingLabel extends StatelessWidget {
+  const _SettingLabel(this.text);
+  final String text;
 
   @override
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: selected ? theme.colorScheme.accent : null,
-          border: Border.all(color: selected ? theme.colorScheme.primary : theme.colorScheme.border),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          label,
-          style: theme.textTheme.p.copyWith(
-            color: selected ? theme.colorScheme.primary : theme.colorScheme.mutedForeground,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-          ),
-        ),
+    return Text(
+      text,
+      style: theme.textTheme.small.copyWith(
+        fontWeight: FontWeight.w700,
+        color: theme.colorScheme.mutedForeground,
       ),
     );
   }

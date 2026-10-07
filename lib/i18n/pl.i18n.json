@@ -1,10 +1,11 @@
 {
   "nav": {
-    "orders": "Zamówienia",
     "account": "Konto",
     "collapse": "Zwiń nawigację",
     "expand": "Rozwiń nawigację",
-    "history": "Historia"
+    "history": "Historia",
+    "available": "Zadania",
+    "inProgress": "Realizowane"
   },
   "login": {
     "title": "Zaloguj się",
@@ -23,7 +24,6 @@
   },
   "orders": {
     "title": "Zamówienia",
-    "empty": "Brak aktywnych zamówień.",
     "loading": "Wczytywanie...",
     "loadError": "Nie udało się pobrać listy zamówień.",
     "retry": "Spróbuj ponownie",
@@ -34,7 +34,7 @@
       "goods_transport": "Transport półproduktów",
       "waste_removal": "Wywożenie odpadu",
       "warehouse_return": "Zwrot na magazyn",
-      "machine_transport": "Transport maszyny"
+      "machine_transport": "Przewóz maszyny"
     },
     "status": {
       "new": "Nowe",
@@ -46,11 +46,13 @@
     },
     "card": {
       "employeeNo": "Zlecający",
-      "take": "Rozpocznij realizację",
-      "taken": "Już realizujesz",
+      "take": "Rozpocznij zadanie",
       "takenBy": "Realizuje {who}",
       "problemFromRequester": "Zamawiający zgłosił problem",
-      "problemWithRequester": "Czeka na zamawiającego"
+      "problemWithRequester": "Czeka na zamawiającego",
+      "deliver": "Dostarczone",
+      "awaitingConfirm": "Oczekuje na potwierdzenie",
+      "itemsShort": "{n} poz."
     },
     "detail": {
       "line": "Linia",
@@ -61,13 +63,13 @@
       "createdAt": "Utworzono",
       "itemsTitle": "Pozycje",
       "issued": "Wydano: {value}",
-      "take": "Rozpocznij realizację",
+      "take": "Rozpocznij zadanie",
       "deliver": "Dostarczone",
       "deliverError": "Nie udało się oznaczyć zamówienia jako dostarczone.",
       "awaitingAcceptance": "Oczekuje na potwierdzenie odbioru.",
       "reportProblem": "Zgłoś problem",
       "reportProblemTitle": "Zgłoszenie problemu",
-      "reportProblemDescription": "Napisz, co blokuje transport - zamawiający to zobaczy i ma to rozwiązać.",
+      "reportProblemDescription": "Napisz, co blokuje transport.",
       "reportProblemPlaceholder": "Na czym polega problem?",
       "reportProblemSubmit": "Zgłoś",
       "reportProblemCancel": "Anuluj",
@@ -76,10 +78,9 @@
       "problemResolvedBy": "{who} oznaczył problem jako rozwiązany",
       "problemFromRequester": "Zamawiający zgłosił problem",
       "problemResolve": "Problem rozwiązany",
-      "problemResolveHint": "Popraw to i oznacz, że gotowe - potem dostarcz ponownie.",
       "resolveError": "Nie udało się oznaczyć problemu jako rozwiązanego.",
       "chat": "Czat",
-      "chatSoon": "wkrótce"
+      "frpStockButton": "Stan FRP w magazynie"
     },
     "sectionInProgress": "W realizacji",
     "sectionNew": "Nowe zamówienia",
@@ -88,9 +89,19 @@
       "empty": "Brak zrealizowanych zamówień.",
       "loadError": "Nie udało się pobrać historii.",
       "today": "Dziś",
-      "yesterday": "Wczoraj"
+      "yesterday": "Wczoraj",
+      "allLoaded": "To już wszystko."
     },
-    "sectionProblem": "Problem"
+    "sectionProblem": "Problem",
+    "chat": {
+      "title": "Czat",
+      "placeholder": "Napisz wiadomość...",
+      "empty": "Brak wiadomości.",
+      "loadError": "Nie udało się pobrać czatu.",
+      "sendError": "Nie udało się wysłać wiadomości."
+    },
+    "emptyAvailable": "Brak zadań do wzięcia.",
+    "emptyMine": "Nie realizujesz żadnego zadania."
   },
   "account": {
     "logout": "Wyloguj",
@@ -100,9 +111,31 @@
     "theme": "Motyw",
     "themeSystem": "Systemowy",
     "themeLight": "Jasny",
-    "themeDark": "Ciemny",
-    "deviceLabel": "Oznaczenie wózka",
-    "deviceLabelHint": "Widoczne w Historii logowania (wps) przy każdym logowaniu z tego urządzenia.",
-    "save": "Zapisz"
+    "themeDark": "Ciemny"
+  },
+  "frpStock": {
+    "title": "Stan FRP",
+    "loading": "Wczytywanie...",
+    "loadError": "Nie udało się pobrać stanu FRP.",
+    "retry": "Spróbuj ponownie",
+    "empty": "Brak pozycji.",
+    "searchPlaceholder": "Nazwa, item, bęben lub lokalizacja",
+    "fromThisOrder": "Z tego zamówienia",
+    "otherDrums": "Pozostałe",
+    "reserved": "Zarezerwowana"
+  },
+  "shortLengths": {
+    "title": "Krótkie odcinki",
+    "button": "Zgłoś krótkie odcinki",
+    "material": "Materiał",
+    "quantity": "Ilość",
+    "submit": "Zgłoś",
+    "reported": "Zgłoszono",
+    "submitError": "Nie udało się wysłać zgłoszenia.",
+    "photo": "Zdjęcie",
+    "photoTake": "Zrób zdjęcie",
+    "photoPick": "Z galerii",
+    "photoError": "Nie udało się wczytać zdjęcia.",
+    "photoUploadError": "Zgłoszenie zapisane, ale zdjęcie się nie wysłało."
   }
 }

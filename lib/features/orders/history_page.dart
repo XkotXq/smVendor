@@ -25,9 +25,11 @@ import 'orders_providers.dart';
 ///
 /// No polling: finished orders do not change. Re-selecting the tab remounts
 /// this page (AppShell swaps pages in directly), and that re-fetches.
-/// Also no paging - wpsApi returns the whole history scope, which is fine at
-/// this warehouse's volume but is the thing to revisit first if this ever
-/// gets slow.
+///
+/// **Loaded a page at a time** (`historyPageSize`), with the next page
+/// fetched as the reader nears the bottom - see HistoryNotifier. Pulling the
+/// whole history scope was fine at this warehouse's volume on day one and
+/// would not stay fine.
 class HistoryPage extends ConsumerStatefulWidget {
   const HistoryPage({super.key});
 
@@ -36,6 +38,31 @@ class HistoryPage extends ConsumerStatefulWidget {
 }
 
 class _HistoryPageState extends ConsumerState<HistoryPage> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  /// Asks for the next page a screenful before the end, so the rows are
+  /// already there by the time the reader gets to them instead of them
+  /// hitting a spinner at the bottom. The notifier itself ignores a second
+  /// call while one is in flight.
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels < position.maxScrollExtent - 400) return;
+    ref.read(historyOrdersProvider.notifier).loadMore();
+  }
+
   Future<void> _open(TransportOrder order) async {
     await Navigator.of(context).push(
       PageRouteBuilder(pageBuilder: (context, _, _) => OrderDetailPage(orderId: order.id, initial: order)),
@@ -67,7 +94,8 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     final historyAsync = ref.watch(historyOrdersProvider);
     // Whatever was last known stays on screen while a refresh runs or after
     // one fails - loading and error only show when there is nothing yet.
-    final history = historyAsync.value;
+    final page = historyAsync.value;
+    final history = page?.orders;
 
     if (history == null && historyAsync.hasError) {
       return Center(
@@ -95,6 +123,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     }
 
     return ListView(
+      controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
         for (final (day, orders) in _byDay(history)) ...[
@@ -116,6 +145,13 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
           ),
           const SizedBox(height: 20),
         ],
+        // The end of the list says which end it is: more coming, or that
+        // this really is everything. A list that just stops leaves the
+        // reader wondering whether it is still loading.
+        if (page!.loadingMore)
+          Center(child: Text(context.t.orders.loading, style: theme.textTheme.muted))
+        else if (!page.hasMore && history.length > historyPageSize)
+          Center(child: Text(t.allLoaded, style: theme.textTheme.muted.copyWith(fontSize: 12))),
       ],
     );
   }

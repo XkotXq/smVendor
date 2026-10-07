@@ -39,4 +39,24 @@ class AppColors {
   // asterisks and invalid-cell highlighting in WPS.
   static const destructiveLight = Color(0xFFDC2626);
   static const destructiveDark = Color(0xFFF87171);
+
+  // Per-order-type icon tones, one pair per type, matching WPS's own
+  // ORDER_TYPES `iconTone` in components/OrdersCipListTable.js exactly
+  // (`text-<colour>-600` / `dark:text-<colour>-400`) - see
+  // features/orders/order_types.dart. These are the sRGB conversions of
+  // Tailwind v4's own oklch tokens; the same conversion reproduces
+  // neutral300 above to the byte, which is what makes them trustworthy
+  // rather than eyeballed. Copied from ../../../smOrder's own, so a type
+  // is the same colour in both apps and in the dashboard.
+  static const blue600 = Color(0xFF155DFC);
+  static const blue400 = Color(0xFF51A2FF);
+  static const pink600 = Color(0xFFE60076);
+  static const pink400 = Color(0xFFFB64B6);
+  static const gray600 = Color(0xFF4A5565);
+  static const orange600 = Color(0xFFF54900);
+  static const orange400 = Color(0xFFFF8904);
+  static const yellow600 = Color(0xFFD08700);
+  static const yellow400 = Color(0xFFFDC700);
+  static const green600 = Color(0xFF00A63E);
+  static const green400 = Color(0xFF05DF72);
 }

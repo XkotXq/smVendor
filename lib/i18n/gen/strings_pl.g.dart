@@ -45,6 +45,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$login$pl login = Translations$login$pl._(_root);
 	late final Translations$orders$pl orders = Translations$orders$pl._(_root);
 	late final Translations$account$pl account = Translations$account$pl._(_root);
+	late final Translations$frpStock$pl frpStock = Translations$frpStock$pl._(_root);
+	late final Translations$shortLengths$pl shortLengths = Translations$shortLengths$pl._(_root);
 }
 
 // Path: nav
@@ -54,9 +56,6 @@ class Translations$nav$pl {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-
-	/// pl: 'Zamówienia'
-	String get orders => 'Zamówienia';
 
 	/// pl: 'Konto'
 	String get account => 'Konto';
@@ -69,6 +68,12 @@ class Translations$nav$pl {
 
 	/// pl: 'Historia'
 	String get history => 'Historia';
+
+	/// pl: 'Zadania'
+	String get available => 'Zadania';
+
+	/// pl: 'Realizowane'
+	String get inProgress => 'Realizowane';
 }
 
 // Path: login
@@ -114,9 +119,6 @@ class Translations$orders$pl {
 	/// pl: 'Zamówienia'
 	String get title => 'Zamówienia';
 
-	/// pl: 'Brak aktywnych zamówień.'
-	String get empty => 'Brak aktywnych zamówień.';
-
 	/// pl: 'Wczytywanie...'
 	String get loading => 'Wczytywanie...';
 
@@ -144,6 +146,14 @@ class Translations$orders$pl {
 
 	/// pl: 'Problem'
 	String get sectionProblem => 'Problem';
+
+	late final Translations$orders$chat$pl chat = Translations$orders$chat$pl._(_root);
+
+	/// pl: 'Brak zadań do wzięcia.'
+	String get emptyAvailable => 'Brak zadań do wzięcia.';
+
+	/// pl: 'Nie realizujesz żadnego zadania.'
+	String get emptyMine => 'Nie realizujesz żadnego zadania.';
 }
 
 // Path: account
@@ -177,15 +187,87 @@ class Translations$account$pl {
 
 	/// pl: 'Ciemny'
 	String get themeDark => 'Ciemny';
+}
 
-	/// pl: 'Oznaczenie wózka'
-	String get deviceLabel => 'Oznaczenie wózka';
+// Path: frpStock
+class Translations$frpStock$pl {
+	Translations$frpStock$pl._(this._root);
 
-	/// pl: 'Widoczne w Historii logowania (wps) przy każdym logowaniu z tego urządzenia.'
-	String get deviceLabelHint => 'Widoczne w Historii logowania (wps) przy każdym logowaniu z tego urządzenia.';
+	final Translations _root; // ignore: unused_field
 
-	/// pl: 'Zapisz'
-	String get save => 'Zapisz';
+	// Translations
+
+	/// pl: 'Stan FRP'
+	String get title => 'Stan FRP';
+
+	/// pl: 'Wczytywanie...'
+	String get loading => 'Wczytywanie...';
+
+	/// pl: 'Nie udało się pobrać stanu FRP.'
+	String get loadError => 'Nie udało się pobrać stanu FRP.';
+
+	/// pl: 'Spróbuj ponownie'
+	String get retry => 'Spróbuj ponownie';
+
+	/// pl: 'Brak pozycji.'
+	String get empty => 'Brak pozycji.';
+
+	/// pl: 'Nazwa, item, bęben lub lokalizacja'
+	String get searchPlaceholder => 'Nazwa, item, bęben lub lokalizacja';
+
+	/// pl: 'Z tego zamówienia'
+	String get fromThisOrder => 'Z tego zamówienia';
+
+	/// pl: 'Pozostałe'
+	String get otherDrums => 'Pozostałe';
+
+	/// pl: 'Zarezerwowana'
+	String get reserved => 'Zarezerwowana';
+}
+
+// Path: shortLengths
+class Translations$shortLengths$pl {
+	Translations$shortLengths$pl._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// pl: 'Krótkie odcinki'
+	String get title => 'Krótkie odcinki';
+
+	/// pl: 'Zgłoś krótkie odcinki'
+	String get button => 'Zgłoś krótkie odcinki';
+
+	/// pl: 'Materiał'
+	String get material => 'Materiał';
+
+	/// pl: 'Ilość'
+	String get quantity => 'Ilość';
+
+	/// pl: 'Zgłoś'
+	String get submit => 'Zgłoś';
+
+	/// pl: 'Zgłoszono'
+	String get reported => 'Zgłoszono';
+
+	/// pl: 'Nie udało się wysłać zgłoszenia.'
+	String get submitError => 'Nie udało się wysłać zgłoszenia.';
+
+	/// pl: 'Zdjęcie'
+	String get photo => 'Zdjęcie';
+
+	/// pl: 'Zrób zdjęcie'
+	String get photoTake => 'Zrób zdjęcie';
+
+	/// pl: 'Z galerii'
+	String get photoPick => 'Z galerii';
+
+	/// pl: 'Nie udało się wczytać zdjęcia.'
+	String get photoError => 'Nie udało się wczytać zdjęcia.';
+
+	/// pl: 'Zgłoszenie zapisane, ale zdjęcie się nie wysłało.'
+	String get photoUploadError => 'Zgłoszenie zapisane, ale zdjęcie się nie wysłało.';
 }
 
 // Path: login.errors
@@ -235,8 +317,8 @@ class Translations$orders$types$pl {
 	/// pl: 'Zwrot na magazyn'
 	String get warehouse_return => 'Zwrot na magazyn';
 
-	/// pl: 'Transport maszyny'
-	String get machine_transport => 'Transport maszyny';
+	/// pl: 'Przewóz maszyny'
+	String get machine_transport => 'Przewóz maszyny';
 }
 
 // Path: orders.status
@@ -277,11 +359,8 @@ class Translations$orders$card$pl {
 	/// pl: 'Zlecający'
 	String get employeeNo => 'Zlecający';
 
-	/// pl: 'Rozpocznij realizację'
-	String get take => 'Rozpocznij realizację';
-
-	/// pl: 'Już realizujesz'
-	String get taken => 'Już realizujesz';
+	/// pl: 'Rozpocznij zadanie'
+	String get take => 'Rozpocznij zadanie';
 
 	/// pl: 'Realizuje {who}'
 	String takenBy({required Object who}) => 'Realizuje ${who}';
@@ -291,6 +370,15 @@ class Translations$orders$card$pl {
 
 	/// pl: 'Czeka na zamawiającego'
 	String get problemWithRequester => 'Czeka na zamawiającego';
+
+	/// pl: 'Dostarczone'
+	String get deliver => 'Dostarczone';
+
+	/// pl: 'Oczekuje na potwierdzenie'
+	String get awaitingConfirm => 'Oczekuje na potwierdzenie';
+
+	/// pl: '{n} poz.'
+	String itemsShort({required Object n}) => '${n} poz.';
 }
 
 // Path: orders.detail
@@ -325,8 +413,8 @@ class Translations$orders$detail$pl {
 	/// pl: 'Wydano: {value}'
 	String issued({required Object value}) => 'Wydano: ${value}';
 
-	/// pl: 'Rozpocznij realizację'
-	String get take => 'Rozpocznij realizację';
+	/// pl: 'Rozpocznij zadanie'
+	String get take => 'Rozpocznij zadanie';
 
 	/// pl: 'Dostarczone'
 	String get deliver => 'Dostarczone';
@@ -343,8 +431,8 @@ class Translations$orders$detail$pl {
 	/// pl: 'Zgłoszenie problemu'
 	String get reportProblemTitle => 'Zgłoszenie problemu';
 
-	/// pl: 'Napisz, co blokuje transport - zamawiający to zobaczy i ma to rozwiązać.'
-	String get reportProblemDescription => 'Napisz, co blokuje transport - zamawiający to zobaczy i ma to rozwiązać.';
+	/// pl: 'Napisz, co blokuje transport.'
+	String get reportProblemDescription => 'Napisz, co blokuje transport.';
 
 	/// pl: 'Na czym polega problem?'
 	String get reportProblemPlaceholder => 'Na czym polega problem?';
@@ -370,17 +458,14 @@ class Translations$orders$detail$pl {
 	/// pl: 'Problem rozwiązany'
 	String get problemResolve => 'Problem rozwiązany';
 
-	/// pl: 'Popraw to i oznacz, że gotowe - potem dostarcz ponownie.'
-	String get problemResolveHint => 'Popraw to i oznacz, że gotowe - potem dostarcz ponownie.';
-
 	/// pl: 'Nie udało się oznaczyć problemu jako rozwiązanego.'
 	String get resolveError => 'Nie udało się oznaczyć problemu jako rozwiązanego.';
 
 	/// pl: 'Czat'
 	String get chat => 'Czat';
 
-	/// pl: 'wkrótce'
-	String get chatSoon => 'wkrótce';
+	/// pl: 'Stan FRP w magazynie'
+	String get frpStockButton => 'Stan FRP w magazynie';
 }
 
 // Path: orders.history
@@ -402,6 +487,33 @@ class Translations$orders$history$pl {
 
 	/// pl: 'Wczoraj'
 	String get yesterday => 'Wczoraj';
+
+	/// pl: 'To już wszystko.'
+	String get allLoaded => 'To już wszystko.';
+}
+
+// Path: orders.chat
+class Translations$orders$chat$pl {
+	Translations$orders$chat$pl._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// pl: 'Czat'
+	String get title => 'Czat';
+
+	/// pl: 'Napisz wiadomość...'
+	String get placeholder => 'Napisz wiadomość...';
+
+	/// pl: 'Brak wiadomości.'
+	String get empty => 'Brak wiadomości.';
+
+	/// pl: 'Nie udało się pobrać czatu.'
+	String get loadError => 'Nie udało się pobrać czatu.';
+
+	/// pl: 'Nie udało się wysłać wiadomości.'
+	String get sendError => 'Nie udało się wysłać wiadomości.';
 }
 
 /// The flat map containing all translations for locale <pl>.
@@ -412,11 +524,12 @@ class Translations$orders$history$pl {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'nav.orders' => 'Zamówienia',
 			'nav.account' => 'Konto',
 			'nav.collapse' => 'Zwiń nawigację',
 			'nav.expand' => 'Rozwiń nawigację',
 			'nav.history' => 'Historia',
+			'nav.available' => 'Zadania',
+			'nav.inProgress' => 'Realizowane',
 			'login.title' => 'Zaloguj się',
 			'login.subtitle' => 'smVendor - panel logowania',
 			'login.usernameLabel' => 'Login',
@@ -429,7 +542,6 @@ extension on Translations {
 			'login.errors.tooManyAttempts' => 'Zbyt wiele prób logowania - spróbuj ponownie za chwilę.',
 			'login.errors.serverUnreachable' => 'Nie udało się połączyć z serwerem.',
 			'orders.title' => 'Zamówienia',
-			'orders.empty' => 'Brak aktywnych zamówień.',
 			'orders.loading' => 'Wczytywanie...',
 			'orders.loadError' => 'Nie udało się pobrać listy zamówień.',
 			'orders.retry' => 'Spróbuj ponownie',
@@ -439,7 +551,7 @@ extension on Translations {
 			'orders.types.goods_transport' => 'Transport półproduktów',
 			'orders.types.waste_removal' => 'Wywożenie odpadu',
 			'orders.types.warehouse_return' => 'Zwrot na magazyn',
-			'orders.types.machine_transport' => 'Transport maszyny',
+			'orders.types.machine_transport' => 'Przewóz maszyny',
 			'orders.status.kNew' => 'Nowe',
 			'orders.status.inProgress' => 'W realizacji',
 			'orders.status.delivered' => 'Dostarczone',
@@ -447,11 +559,13 @@ extension on Translations {
 			'orders.status.cancelled' => 'Anulowane',
 			'orders.status.problem' => 'Problem',
 			'orders.card.employeeNo' => 'Zlecający',
-			'orders.card.take' => 'Rozpocznij realizację',
-			'orders.card.taken' => 'Już realizujesz',
+			'orders.card.take' => 'Rozpocznij zadanie',
 			'orders.card.takenBy' => ({required Object who}) => 'Realizuje ${who}',
 			'orders.card.problemFromRequester' => 'Zamawiający zgłosił problem',
 			'orders.card.problemWithRequester' => 'Czeka na zamawiającego',
+			'orders.card.deliver' => 'Dostarczone',
+			'orders.card.awaitingConfirm' => 'Oczekuje na potwierdzenie',
+			'orders.card.itemsShort' => ({required Object n}) => '${n} poz.',
 			'orders.detail.line' => 'Linia',
 			'orders.detail.productionOrderNo' => 'Numer zamówienia',
 			'orders.detail.employeeNo' => 'Zlecający',
@@ -460,13 +574,13 @@ extension on Translations {
 			'orders.detail.createdAt' => 'Utworzono',
 			'orders.detail.itemsTitle' => 'Pozycje',
 			'orders.detail.issued' => ({required Object value}) => 'Wydano: ${value}',
-			'orders.detail.take' => 'Rozpocznij realizację',
+			'orders.detail.take' => 'Rozpocznij zadanie',
 			'orders.detail.deliver' => 'Dostarczone',
 			'orders.detail.deliverError' => 'Nie udało się oznaczyć zamówienia jako dostarczone.',
 			'orders.detail.awaitingAcceptance' => 'Oczekuje na potwierdzenie odbioru.',
 			'orders.detail.reportProblem' => 'Zgłoś problem',
 			'orders.detail.reportProblemTitle' => 'Zgłoszenie problemu',
-			'orders.detail.reportProblemDescription' => 'Napisz, co blokuje transport - zamawiający to zobaczy i ma to rozwiązać.',
+			'orders.detail.reportProblemDescription' => 'Napisz, co blokuje transport.',
 			'orders.detail.reportProblemPlaceholder' => 'Na czym polega problem?',
 			'orders.detail.reportProblemSubmit' => 'Zgłoś',
 			'orders.detail.reportProblemCancel' => 'Anuluj',
@@ -475,10 +589,9 @@ extension on Translations {
 			'orders.detail.problemResolvedBy' => ({required Object who}) => '${who} oznaczył problem jako rozwiązany',
 			'orders.detail.problemFromRequester' => 'Zamawiający zgłosił problem',
 			'orders.detail.problemResolve' => 'Problem rozwiązany',
-			'orders.detail.problemResolveHint' => 'Popraw to i oznacz, że gotowe - potem dostarcz ponownie.',
 			'orders.detail.resolveError' => 'Nie udało się oznaczyć problemu jako rozwiązanego.',
 			'orders.detail.chat' => 'Czat',
-			'orders.detail.chatSoon' => 'wkrótce',
+			'orders.detail.frpStockButton' => 'Stan FRP w magazynie',
 			'orders.sectionInProgress' => 'W realizacji',
 			'orders.sectionNew' => 'Nowe zamówienia',
 			'orders.sectionDelivered' => 'Oczekują na potwierdzenie',
@@ -486,7 +599,15 @@ extension on Translations {
 			'orders.history.loadError' => 'Nie udało się pobrać historii.',
 			'orders.history.today' => 'Dziś',
 			'orders.history.yesterday' => 'Wczoraj',
+			'orders.history.allLoaded' => 'To już wszystko.',
 			'orders.sectionProblem' => 'Problem',
+			'orders.chat.title' => 'Czat',
+			'orders.chat.placeholder' => 'Napisz wiadomość...',
+			'orders.chat.empty' => 'Brak wiadomości.',
+			'orders.chat.loadError' => 'Nie udało się pobrać czatu.',
+			'orders.chat.sendError' => 'Nie udało się wysłać wiadomości.',
+			'orders.emptyAvailable' => 'Brak zadań do wzięcia.',
+			'orders.emptyMine' => 'Nie realizujesz żadnego zadania.',
 			'account.logout' => 'Wyloguj',
 			'account.language' => 'Język',
 			'account.languagePolish' => 'Polski',
@@ -495,9 +616,27 @@ extension on Translations {
 			'account.themeSystem' => 'Systemowy',
 			'account.themeLight' => 'Jasny',
 			'account.themeDark' => 'Ciemny',
-			'account.deviceLabel' => 'Oznaczenie wózka',
-			'account.deviceLabelHint' => 'Widoczne w Historii logowania (wps) przy każdym logowaniu z tego urządzenia.',
-			'account.save' => 'Zapisz',
+			'frpStock.title' => 'Stan FRP',
+			'frpStock.loading' => 'Wczytywanie...',
+			'frpStock.loadError' => 'Nie udało się pobrać stanu FRP.',
+			'frpStock.retry' => 'Spróbuj ponownie',
+			'frpStock.empty' => 'Brak pozycji.',
+			'frpStock.searchPlaceholder' => 'Nazwa, item, bęben lub lokalizacja',
+			'frpStock.fromThisOrder' => 'Z tego zamówienia',
+			'frpStock.otherDrums' => 'Pozostałe',
+			'frpStock.reserved' => 'Zarezerwowana',
+			'shortLengths.title' => 'Krótkie odcinki',
+			'shortLengths.button' => 'Zgłoś krótkie odcinki',
+			'shortLengths.material' => 'Materiał',
+			'shortLengths.quantity' => 'Ilość',
+			'shortLengths.submit' => 'Zgłoś',
+			'shortLengths.reported' => 'Zgłoszono',
+			'shortLengths.submitError' => 'Nie udało się wysłać zgłoszenia.',
+			'shortLengths.photo' => 'Zdjęcie',
+			'shortLengths.photoTake' => 'Zrób zdjęcie',
+			'shortLengths.photoPick' => 'Z galerii',
+			'shortLengths.photoError' => 'Nie udało się wczytać zdjęcia.',
+			'shortLengths.photoUploadError' => 'Zgłoszenie zapisane, ale zdjęcie się nie wysłało.',
 			_ => null,
 		};
 	}

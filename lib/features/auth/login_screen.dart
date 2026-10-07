@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 import '../../core/api/auth_api.dart';
-import '../../core/session/device_label_providers.dart';
 import '../../core/session/session_providers.dart';
 import '../../i18n/gen/strings.g.dart';
 import '../../widgets/app_shell.dart';
@@ -59,8 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _error = null;
     });
     try {
-      final deviceLabel = ref.read(deviceLabelProvider).value;
-      final session = await ref.read(authApiProvider).login(username, password, deviceLabel: deviceLabel);
+      final session = await ref.read(authApiProvider).login(username, password);
       if (!mounted) return;
       ref.read(sessionProvider.notifier).setSession(session);
       Navigator.of(context).pushReplacement(

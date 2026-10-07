@@ -42,7 +42,22 @@ class _AppShellState extends State<AppShell> {
   // localStorage carry-over, which nothing here has asked for yet.
   bool _collapsed = false;
 
+  /// Where "Realizowane" sits in the nav, named rather than written as a
+  /// literal 1 at the call site that jumps to it.
+  static const int _inProgressTab = 1;
+
   void _select(int index) => setState(() => _selected = index);
+
+  /// History and the account page are pushed now that they are not nav
+  /// entries, so each needs a way back - _PushedPage supplies the same
+  /// back-arrow header the order pages already have (see
+  /// features/orders/order_detail_page.dart). PageRouteBuilder, matching
+  /// how that page pushes the chat.
+  void _push(BuildContext context, String title, Widget child) {
+    Navigator.of(context).push(
+      PageRouteBuilder(pageBuilder: (context, _, _) => _PushedPage(title: title, child: child)),
+    );
+  }
   void _toggleCollapsed() => setState(() => _collapsed = !_collapsed);
 
   @override
@@ -51,14 +66,34 @@ class _AppShellState extends State<AppShell> {
     final t = context.t.nav;
     // Built per-build (not static const) since the labels come from context.t
     // and must follow the current locale (see core/session/locale_providers.dart).
+    // The two work queues and the account. The first two are the same
+    // page under a different filter - "what is free to take" against "what
+    // I am carrying", the one decision an operator makes on arriving here.
+    //
+    // History stays in the header instead: it is a thing you go and look
+    // at, not a queue you work from, and a fourth tab for it would put a
+    // button that is pressed once a week next to the two that are pressed
+    // all shift.
     final items = [
-      _NavEntry(LucideIcons.truck, t.orders, const OrdersPage()),
-      _NavEntry(LucideIcons.history, t.history, const HistoryPage()),
+      _NavEntry(
+        LucideIcons.inbox,
+        t.available,
+        OrdersPage(
+          queue: OrdersQueue.available,
+          // Taking a task moves it to the other queue, so that is where the
+          // operator should be when they come back out of it.
+          onTaskTaken: () => _select(_inProgressTab),
+        ),
+      ),
+      _NavEntry(LucideIcons.truck, t.inProgress, const OrdersPage(queue: OrdersQueue.mine)),
       _NavEntry(LucideIcons.user, t.account, const AccountPage()),
     ];
     final wide = MediaQuery.sizeOf(context).width >= _kWideBreakpoint;
 
-    final header = _Header(title: items[_selected].label);
+    final header = _Header(
+      title: items[_selected].label,
+      onHistory: () => _push(context, t.history, const HistoryPage()),
+    );
     final page = items[_selected].page;
 
     return ColoredBox(
@@ -94,14 +129,15 @@ class _AppShellState extends State<AppShell> {
 /// Same header on both layouts - just the current page's label, big and
 /// bold like wps's own dashboard header (app/dashboard/layout.js).
 class _Header extends StatelessWidget {
-  const _Header({required this.title});
+  const _Header({required this.title, required this.onHistory});
   final String title;
+  final VoidCallback onHistory;
 
   @override
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      padding: const EdgeInsets.fromLTRB(20, 12, 8, 8),
       child: Row(
         children: [
           Expanded(
@@ -110,7 +146,56 @@ class _Header extends StatelessWidget {
               style: theme.textTheme.h2.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
             ),
           ),
+          // On every page of the shell, so finished work is one tap away
+          // wherever you are rather than costing a nav slot of its own.
+          ShadButton.ghost(
+            onPressed: onHistory,
+            child: const Icon(LucideIcons.history, size: 20),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// A page that was pushed rather than selected: the same back-arrow header
+/// the order pages use, then the page itself.
+class _PushedPage extends StatelessWidget {
+  const _PushedPage({required this.title, required this.child});
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = ShadTheme.of(context);
+    return ColoredBox(
+      color: theme.colorScheme.background,
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+              child: Row(
+                children: [
+                  ShadButton.ghost(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Icon(LucideIcons.arrowLeft),
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: theme.textTheme.h3.copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: child),
+          ],
+        ),
       ),
     );
   }

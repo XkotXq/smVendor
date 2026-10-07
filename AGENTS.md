@@ -105,16 +105,28 @@ because this screen is a working checklist, unlike smOrder's read-only view.
   a restart returns to the login screen. smOrder persists its session
   instead - copy that approach here if it is ever wanted.
 - **Per-device settings are SharedPreferences-backed** small providers, one
-  per concern: `locale_providers.dart`, `theme_providers.dart`,
-  `device_label_providers.dart`.
+  per concern: `locale_providers.dart`, `theme_providers.dart`. There was a
+  third, `device_label_providers.dart`, holding an "Oznaczenie wózka" set on
+  the Konto page and sent with every login; it and its input were removed on
+  2026-10-02, and wpsApi now logs every login without it.
 
-## "Oznaczenie wózka" (the forklift label)
-Set once per device on the **Konto** page (`device_label_providers.dart`,
-key `smvendor.deviceLabel`), sent with every login, and logged by wpsApi
-into `login_events` for wps's "Historia logowania". That is how a login is
-tied to a physical forklift. It lives here and **not in smpda** - this is
-the forklift-facing app. wpsApi's `logDeviceLogin` is caller-agnostic: it
-writes a row only when the login body carries a non-blank `deviceLabel`.
+## Keyboard and system bars (`main.dart`)
+Both wrappers sit inside `ShadApp`, so they cover every route pushed later.
+- **`_AboveKeyboard`** pads the whole app by `MediaQuery.viewInsets.bottom`
+  and strips that inset for everything below it. Android is already told to
+  resize (`windowSoftInputMode="adjustResize"`), but that only makes it
+  *report* the inset - Material's Scaffold is what normally turns it into
+  padding, and these apps have none (shadcn_ui on
+  `package:flutter/widgets.dart`), so the keyboard used to sit on top of
+  whatever was at the bottom: the chat's send button, "Dostarczone", the
+  problem footer. `removeViewInsets` matters: without it a scrolling field
+  or a SafeArea counts the inset a second time and leaves a keyboard-sized
+  gap.
+- **`_SystemBars`** asks for dark status-bar icons on the light theme and
+  light ones on the dark theme, reading the **resolved** brightness from
+  `ShadTheme` so "system" lands on the right one. An app that asks for
+  nothing gets light icons, which are invisible on this app's light
+  background - the clock and the battery simply were not there.
 
 ## Configuration
 `core/api/api_client.dart` has the wpsApi address **hardcoded** (the LAN
@@ -125,6 +137,15 @@ public): it is a compile-time define, so run/build with
 but login is refused.
 
 ## Running it
-`flutter run -d <device> --dart-define=API_TOKEN=...`, or
-`flutter build apk --debug` + `flutter install -d <device>`. `flutter
-analyze` must be clean.
+Android: `flutter run -d <device> --dart-define=API_TOKEN=...`, or
+`flutter build apk --debug --dart-define=API_TOKEN=...` +
+`flutter install --debug -d <device>` (plain `flutter install` looks for a
+**release** apk and fails). `flutter analyze` must be clean.
+
+Browser (the app also runs on web): `flutter build web
+--dart-define=API_TOKEN=...`, then `node tool/serve_web.cjs` and open
+http://localhost:8765 - or the machine LAN address from a tablet. **Do not
+use `flutter run -d web-server`**: it hangs on this machine at "Waiting for
+connection from debug service" and the hung process keeps serving an
+out-of-date build on whatever --web-port it claimed, which looks exactly
+like a change that did not apply. Kill such a leftover before serving.
